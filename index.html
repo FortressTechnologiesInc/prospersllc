@@ -1,63 +1,124 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
 <head th:replace="common/header :: common-header"/>
-
+<body roleId="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+<head th:replace="common/header :: navbar"/>
 <style>
-    img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
+	h1 {text-align: center;}
 </style>
-
-<body>
-<!-- Login Section -->
-<img class="img-responsive" src="/images/banner.png" alt="banner"/>
-<div class="container">
-    <div class="row ">
-        <div class="main-center ">
-            <div class="bg-warning" th:if="${param.error}">
-                Invalid username or password.
-            </div>
-            <div class="bg-info" th:if="${param.logout}">
-                You have been logged out.
-            </div>
-            <div class="bg-danger" th:if="${param.errorSignUp}">
-                Please try again Later Or Contact System Administrator
-            </div>
-            <div class="bg-success" th:if="${param.successSignUp}">
-                Your account has been activated! Please login to continue.
-            </div>
-            <form class="form-signin" th:action="@{/index}" method="post">
-                <h2 class="form-signin-heading">Please sign in</h2>
-                <div class="form-group">
-                    <label for="username" class="sr-only">Username</label>
-                    <input type="text" roleId="username" class="form-control" placeholder="Username" name="username"
-                           id="username"
-                           required="required" autofocus="autofocus"/>
-                </div>
-                <div class="form-group">
-                    <label for="password" class="sr-only">Password</label>
-                    <input type="password" roleId="inputPassword" class="form-control" placeholder="Password"
-                           id="password"
-                           name="password" required="required"/>
-                </div>
-                <div class="form-group">
-                    <input type="checkbox" name="remember-me" id="remember-me"/> &nbsp; Remember me
-                </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-            </form>
-
-            <hr/>
-
-            <div class="form-group ">
-                <a type="submit" class="btn btn-info btn-lg btn-block login-button" th:href="@{/signup}">Sign up!</a>
-            </div>
+<div class="container main">
+    <div class="row">
+        <div class="col-lg-12">
+            <!--<h1 class="page-header">Dashboard</h1>-->
         </div>
+        <!-- /.col-lg-12 -->
+    </div>
+	<h1>Account Management Portal</h1>
+	
+	
+	
+	
+	
+    <div class="table-responsive">
+        <table id="example" class="table table-bordered table-hover table-striped">
+            <thead>
+            <tr>
+            	<th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Open Account Statements</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Aadhaar ID</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-th-each="userList : ${userList}">
+            	<td data-th-text="${userList.username}">...</td>
+                <td data-th-text="${userList.firstName}">...</td>
+                <td data-th-text="${userList.lastName}">...</td>
+                <td>
+                	<button type="button" class="btn btn-primary" th:datausername=${userList.username} th:onclick="|showSavingsAcc(this.getAttribute('datausername'))|">Current</button>
+                	<button type="button" class="btn btn-info" th:datausername=${userList.username} th:onclick="|showCurrentAcc(this.getAttribute('datausername'))|">Savings</button>
+                </td>
+                <td data-th-text="${userList.phone}">...</td>
+                <td data-th-text="${userList.email}">...</td>
+                <td data-th-text="${userList.aadhaarId}">...</td>
+                <td>
+				    <button th:if="${userList.enabled}" type="button" class="btn btn-success" th:datausername=${userList.username} th:onclick="|changeStatus(this.getAttribute('datausername'))|">Enabled</button>
+				    <button th:unless="${userList.enabled}" type="button" class="btn btn-danger" th:datausername=${userList.username} th:onclick="|changeStatus(this.getAttribute('datausername'))|">Disabled</button>
+				</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div th:replace="common/header :: body-bottom-scripts"/>
 
+<div th:replace="common/header :: body-bottom-scripts"/>
+<script>
+
+	function showSavingsAcc(uname)	{
+		
+		const form = document.createElement('form');
+		form.method = 'post';
+		form.action = '/admin/savingsAccount';
+		
+		const hiddenField = document.createElement('input');
+		hiddenField.name  = 'username';
+		hiddenField.value = uname;
+		
+		form.appendChild(hiddenField);
+		
+		document.body.appendChild(form);
+		form.submit();
+	
+	}
+	
+	function showCurrentAcc(uname)	{
+		
+		const form = document.createElement('form');
+		form.method = 'post';
+		form.action = '/admin/currentAccount';
+		
+		const hiddenField = document.createElement('input');
+		hiddenField.name  = 'username';
+		hiddenField.value = uname;
+		
+		form.appendChild(hiddenField);
+		
+		document.body.appendChild(form);
+		form.submit();
+	
+	}
+
+
+	function changeStatus(uname)	{
+		
+		if(uname=='Admin')	{
+			window.alert("Requested operation cannot be performed");
+			return;
+		}
+		
+		const form = document.createElement('form');
+		form.method = 'post';
+		form.action = '/admin/toggleUser';
+		
+		const hiddenField = document.createElement('input');
+		hiddenField.name  = 'username';
+		hiddenField.value = uname;
+		
+		form.appendChild(hiddenField);
+		
+		document.body.appendChild(form);
+		form.submit();
+
+	}
+
+    $(document).ready(function () {
+        $('#example').DataTable();
+    });
+</script>
 </body>
 </html>
